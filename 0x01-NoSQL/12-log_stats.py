@@ -23,11 +23,11 @@ number_of_mget_pstatus = docs.count_documents({"method": 'GET', "path": "/status
 # print output based on sample format provided
 print(f"{number_of_docs} logs")
 
-print(f"Methods:\n\
-      \t method GET: {number_of_gets}\n\
-      \t method POST: {number_of_posts}\n\
-      \t method PUT: {number_of_puts}\n\
-      \t method PATCH: {number_of_patches}\n\
-      \t method DELETE: {number_of_deletes}")
+print(f"Methods:\n"
+      f"    method GET: {number_of_gets}\n"
+      f"    method POST: {number_of_posts}\n"
+      f"    method PUT: {number_of_puts}\n"
+      f"    method PATCH: {number_of_patches}\n"
+      f"    method DELETE: {number_of_deletes}")
 
 print(f"{number_of_mget_pstatus} status check")
