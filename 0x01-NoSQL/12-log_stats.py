@@ -4,6 +4,7 @@ This is a Python script that provides some
 stats about Nginx logs stored in MongoDB
 """
 from pymongo import MongoClient
+
 # establish connection to database
 client = MongoClient("mongodb://localhost:27017")
 
@@ -31,3 +32,5 @@ print(f"Methods:\n"
       f"    method DELETE: {number_of_deletes}")
 
 print(f"{number_of_mget_pstatus} status check")
+
+client.close()
