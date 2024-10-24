@@ -15,7 +15,8 @@ class Cache():
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         This is a method that method that takes a data argument and
-        returns a string. The method should generate a random key (e.g. using uuid),
+        returns a string. The method should generate a random
+        key (e.g. using uuid),
         store the input data in Redis using the random key and return the key.
         """
         rand_key = str(uuid.uuid4())
