@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
 """This is module that defines a Cache class"""
 from typing import Union, Callable
+from functools import wraps
 import uuid
 import redis
+
+
+def count_calls(method: Callable) -> Callable:
+    """
+    This is a decorator function that takes
+    in a Callable and returns Callable
+    """
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """
+        This is a wrapper function that uses the qualified
+        name of a method as a key, and increments the count
+        for that key each time the method is called
+        """
+        key = method.__qualname__
+
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache():
@@ -12,6 +32,7 @@ class Cache():
         self._redis = redis.Redis()
         self._redis.flushdb(True)
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         This is a method that method that takes a data argument and
@@ -23,7 +44,7 @@ class Cache():
         self._redis.set(rand_key, data)
         return rand_key
 
-    def get(self, key: str, fn: Callable=None) -> any:
+    def get(self, key: str, fn: Callable = None) -> any:
         """
         This is a method that take a key string argument and
         an optional Callable argument named fn. This callable
