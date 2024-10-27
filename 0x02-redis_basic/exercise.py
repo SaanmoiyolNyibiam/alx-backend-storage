@@ -31,7 +31,7 @@ def call_history(method: Callable) -> Callable:
     Stores the input and output of a particular function
     """
     @wraps(method)
-    def wrapper(self, arg):
+    def wrapper(self, *args, **kwargs):
         """
         This is a wrapper function that appends the inputs and
         outputs of method to a list
@@ -39,9 +39,9 @@ def call_history(method: Callable) -> Callable:
         input_list = f"{method.__qualname__}:inputs"
         output_list = f"{method.__qualname__}:outputs"
 
-        input = str(arg)
-        self._redis.rpush(input_list, input)
-        output = str(method(self, arg))
+        input_value = str(args)
+        self._redis.rpush(input_list, input_value)
+        output = str(method(self, *args, **kwargs))
         self._redis.rpush(output_list, output)
         return output
     return wrapper
