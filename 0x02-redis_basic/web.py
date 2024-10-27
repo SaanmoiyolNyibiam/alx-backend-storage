@@ -34,7 +34,7 @@ def cache_count(method: Callable) -> Callable:
         # cache page content and increment url_count
         page_content = method(url)
         redis.incr(url_key)
-        redis.set(result_key, page_content)
+        redis.set(result_key, page_content, ex=10)
         redis.expire(result_key, 10)
         return page_content
     return wrapper
