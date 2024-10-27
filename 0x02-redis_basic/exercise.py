@@ -47,6 +47,24 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(method: Callable) -> Callable:
+    """
+    This is a function that displays the history
+    of calls of a particular function.
+    """
+    key = method.__qualname__
+
+    calls_count = method.__self__._redis.get(key)
+    input_list = method.__self__._redis.lrange(f"{key}:inputs", 0, -1)
+    output_list = method.__self__._redis.lrange(f"{key}:outputs", 0, -1)
+
+    print(f"Cache.store was called {calls_count.decode('utf-8')} times:")
+    for key, value in zip(input_list, output_list):
+        utf_key = key.decode('utf-8')
+        utf_value = value.decode('utf-8')
+        print(f"Cache.store(*{utf_key}) -> {utf_value}")
+
+
 class Cache():
     """This is a class that defines a Cache"""
     def __init__(self):
