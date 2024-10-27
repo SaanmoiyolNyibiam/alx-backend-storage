@@ -4,6 +4,7 @@ from functools import wraps
 from typing import Callable
 import requests
 import redis
+import time
 
 
 redis = redis.Redis()
@@ -33,7 +34,8 @@ def cache_count(method: Callable) -> Callable:
         # cache page content and increment url_count
         page_content = method(url)
         redis.incr(url_key)
-        redis.setex(result_key, 10, page_content)
+        redis.set(result_key, page_content)
+        redis.expire(result_key, 10)
         return page_content
     return wrapper
 
@@ -49,8 +51,12 @@ def get_page(url: str) -> str:
 
 
 if __name__ == '__main__':
-    get_page('http://slowwly.robertomurray.co.uk')
-    get_page('http://slowwly.robertomurray.co.uk')
-    get_page('http://slowwly.robertomurray.co.uk')
+    get_page('http://google.com')
+    get_page('http://google.com')
+    get_page('http://google.com')
 
-    print(redis.get('count:http://slowwly.robertomurray.co.uk'))
+    print(redis.get('count:http://google.com'))
+    print(redis.get('result:http://google.com'))
+    time.sleep(10)
+    print(redis.get('count:http://google.com'))
+    print(redis.get('result:http://google.com'))
