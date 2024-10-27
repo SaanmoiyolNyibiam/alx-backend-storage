@@ -25,6 +25,27 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
+def call_history(method: Callable) -> Callable:
+    """
+    This is a decorator that
+    Stores the input and output of a particular function
+    """
+    @wraps(method)
+    def wrapper(self, arg):
+        """
+        This is a wrapper function that appends the inputs and
+        outputs of method to a list
+        """
+        input_list = f"{method.__qualname__}:inputs"
+        output_list = f"{method.__qualname__}:outputs"
+
+        self._redis.rpush(input_list, arg)
+        output = method(self, str(arg))
+        self._redis.rpush(output_list, output)
+        return output
+    return wrapper
+
+
 class Cache():
     """This is a class that defines a Cache"""
     def __init__(self):
@@ -33,6 +54,7 @@ class Cache():
         self._redis.flushdb(True)
 
     @count_calls
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         This is a method that method that takes a data argument and
