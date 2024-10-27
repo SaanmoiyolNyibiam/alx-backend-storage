@@ -16,11 +16,25 @@ def cache_count(method: Callable) -> Callable:
     """
     @wraps(method)
     def wrapper(*args, **kwargs):
+        """
+        Wrapper function
+        """
+        # initialize variables
         url = args[0]
         url_key = f"count:{url}"
-        url_count = redis.incr(url_key)
-        redis.setex(url_key, 10, url_count)
-        return method(*args, **kwargs)
+        result_key = f"result:{url}"
+
+        # check if page content is already in cache
+        page_content = redis.get(result_key)
+        if page_content:
+            redis.incr(url_key)
+            return page_content.decode('utf-8')
+
+        # cache page content and increment url_count
+        page_content = method(url)
+        redis.incr(url_key)
+        redis.setex(result_key, 10, page_content)
+        return page_content
     return wrapper
 
 
@@ -31,7 +45,7 @@ def get_page(url: str) -> str:
     a particular URL and returns it.
     """
     page_content = requests.get(url)
-    return page_content
+    return page_content.text
 
 
 if __name__ == '__main__':
