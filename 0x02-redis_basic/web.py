@@ -28,7 +28,7 @@ def cache_count(method: Callable) -> Callable:
         # check if page content is already in cache
         page_content = redis.get(result_key)
         if page_content:
-            redis.incr(url_key)
+            # redis.incr(url_key)
             return page_content.decode('utf-8')
 
         # cache page content and increment url_count
