@@ -1,53 +1,60 @@
 #!/usr/bin/env python3
-"""In this tasks, we will implement a get_page function
-(prototype: def get_page(url: str) -> str:). The core of
-the function is very simple. It uses the requests module
-to obtain the HTML content of a particular URL and returns it.
-
-Start in a new file named web.py and do not reuse the code
-written in exercise.py.
-
-Inside get_page track how many times a particular URL was
-accessed in the key "count:{url}" and cache the result with
-an expiration time of 10 seconds.
-
-Tip: Use http://slowwly.robertomurray.co.uk to simulate
-a slow response and test your caching."""
-
+"""This is module that defines a get page function"""
 from functools import wraps
-import redis
+from typing import Callable
 import requests
+import redis
+# import time
 
-r = redis.Redis()
+
+redis = redis.Redis()
 
 
-def url_access_count(method):
-    """decorator for get_page function"""
+def cache_count(method: Callable) -> Callable:
+    """
+    This is a method that decorates the get_page function
+    """
     @wraps(method)
     def wrapper(url):
-        """wrapper function"""
-        key = "cached:" + url
-        cached_value = r.get(key)
-        if cached_value:
-            return cached_value.decode("utf-8")
+        """
+        Wrapper function
+        """
+        # initialize variables
+        url_key = f"count:{url}"
+        result_key = f"result:{url}"
 
-            # Get new content and update cache
-        key_count = "count:" + url
-        html_content = method(url)
+        # check if page content is already in cache
+        page_content = redis.get(result_key)
+        if page_content:
+            redis.incr(url_key)
+            return page_content.decode('utf-8')
 
-        r.incr(key_count)
-        r.set(key, html_content, ex=10)
-        r.expire(key, 10)
-        return html_content
+        # cache page content and increment url_count
+        page_content = method(url)
+        redis.incr(url_key)
+        redis.set(result_key, page_content, ex=10)
+        redis.expire(result_key, 10)
+        return page_content
     return wrapper
 
 
-@url_access_count
+@cache_count
 def get_page(url: str) -> str:
-    """obtain the HTML content of a particular"""
-    results = requests.get(url)
-    return results.text
+    """
+    It uses the requests module to obtain the HTML content of
+    a particular URL and returns it.
+    """
+    page_content = requests.get(url)
+    return page_content.text
 
 
-if __name__ == "__main__":
-    get_page('http://slowwly.robertomurray.co.uk')
+# if __name__ == '__main__':
+#     get_page('http://google.com')
+#     get_page('http://google.com')
+#     get_page('http://google.com')
+
+#     print(redis.get('count:http://google.com'))
+#     print(redis.get('result:http://google.com'))
+#     time.sleep(10)
+#     print(redis.get('count:http://google.com'))
+#     print(redis.get('result:http://google.com'))
