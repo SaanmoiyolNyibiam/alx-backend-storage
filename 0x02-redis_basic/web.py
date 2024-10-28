@@ -4,7 +4,7 @@ from functools import wraps
 from typing import Callable
 import requests
 import redis
-import time
+# import time
 
 
 redis = redis.Redis()
@@ -50,13 +50,13 @@ def get_page(url: str) -> str:
     return page_content.text
 
 
-if __name__ == '__main__':
-    get_page('http://google.com')
-    get_page('http://google.com')
-    get_page('http://google.com')
+# if __name__ == '__main__':
+#     get_page('http://google.com')
+#     get_page('http://google.com')
+#     get_page('http://google.com')
 
-    print(redis.get('count:http://google.com'))
-    print(redis.get('result:http://google.com'))
-    time.sleep(10)
-    print(redis.get('count:http://google.com'))
-    print(redis.get('result:http://google.com'))
+#     print(redis.get('count:http://google.com'))
+#     print(redis.get('result:http://google.com'))
+#     time.sleep(10)
+#     print(redis.get('count:http://google.com'))
+#     print(redis.get('result:http://google.com'))
