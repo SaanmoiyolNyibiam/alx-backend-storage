@@ -8,7 +8,6 @@ import redis
 
 
 redis = redis.Redis()
-redis.flushdb()
 
 
 def cache_count(method: Callable) -> Callable:
@@ -16,19 +15,18 @@ def cache_count(method: Callable) -> Callable:
     This is a method that decorates the get_page function
     """
     @wraps(method)
-    def wrapper(*args, **kwargs):
+    def wrapper(url):
         """
         Wrapper function
         """
         # initialize variables
-        url = args[0]
         url_key = f"count:{url}"
         result_key = f"result:{url}"
 
         # check if page content is already in cache
         page_content = redis.get(result_key)
         if page_content:
-            # redis.incr(url_key)
+            redis.incr(url_key)
             return page_content.decode('utf-8')
 
         # cache page content and increment url_count
